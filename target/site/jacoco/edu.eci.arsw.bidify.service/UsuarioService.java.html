@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UsuarioService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">websockets-msbroker-example</a> &gt; <a href="index.source.html" class="el_package">edu.eci.arsw.bidify.service</a> &gt; <span class="el_source">UsuarioService.java</span></div><h1>UsuarioService.java</h1><pre class="source lang-java linenums">package edu.eci.arsw.bidify.service;
+import java.util.List;
+import java.util.Optional;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import edu.eci.arsw.bidify.model.Usuario;
+import edu.eci.arsw.bidify.repository.UsuarioRepository;
+import lombok.Data;
+
+@Service
+<span class="pc bpc" id="L15" title="13 of 14 branches missed.">@Data</span>
+public class UsuarioService {
+    @Autowired
+<span class="fc" id="L18">    UsuarioRepository usuarioRepository;</span>
+
+    @Transactional
+    public void deleteUserName(String userName) {
+<span class="fc" id="L22">        usuarioRepository.deleteByUserName(userName);</span>
+<span class="fc" id="L23">    }</span>
+
+    public void updateUser(Usuario user) {
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">        if(usuarioRepository.existsById(user.getId())){</span>
+<span class="fc" id="L27">            usuarioRepository.save(user);</span>
+        }
+<span class="fc" id="L29">    }</span>
+
+    public boolean login(String userName, String password) {
+<span class="fc" id="L32">        Usuario user = usuarioRepository.findByUserNameAndPassword(userName, password);</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        return user != null;</span>
+    }
+    
+    public Optional&lt;Usuario&gt; getUsuarioByUserName(String userName) {
+<span class="fc" id="L37">        return usuarioRepository.findByUserName(userName);</span>
+    }
+
+    public List&lt;Usuario&gt; findAll() {
+<span class="fc" id="L41">        return usuarioRepository.findAll();</span>
+    }
+
+    public void registrarUsuario(Usuario usuario){
+<span class="fc" id="L45">        usuarioRepository.save(usuario);</span>
+<span class="fc" id="L46">    }</span>
+
+    public boolean existsById(int id) {
+<span class="fc" id="L49">        return usuarioRepository.existsById(id);</span>
+    }
+
+    public boolean existsByUserName(String userName) {
+<span class="fc" id="L53">        return usuarioRepository.existsByUserName(userName);</span>
+    }
+
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

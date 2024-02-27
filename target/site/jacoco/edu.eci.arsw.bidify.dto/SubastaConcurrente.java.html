@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SubastaConcurrente.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">websockets-msbroker-example</a> &gt; <a href="index.source.html" class="el_package">edu.eci.arsw.bidify.dto</a> &gt; <span class="el_source">SubastaConcurrente.java</span></div><h1>SubastaConcurrente.java</h1><pre class="source lang-java linenums">package edu.eci.arsw.bidify.dto;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import edu.eci.arsw.bidify.model.Subasta;
+import edu.eci.arsw.bidify.model.Usuario;
+import edu.eci.arsw.bidify.service.SubastaService;
+import edu.eci.arsw.bidify.service.UsuarioService;
+import lombok.Data;
+
+<span class="nc bnc" id="L14" title="All 80 branches missed.">@Data</span>
+public class SubastaConcurrente extends Thread{
+<span class="nc" id="L16">    private Subasta subasta;</span>
+    @Autowired
+<span class="nc" id="L18">    private SubastaService subastaService;</span>
+<span class="nc" id="L19">    private UsuarioService usuarioService; </span>
+<span class="nc" id="L20">    private BigDecimal precioActual = BigDecimal.ZERO;</span>
+<span class="nc" id="L21">    private Usuario ganador;</span>
+<span class="nc" id="L22">    private final Lock lock = new ReentrantLock();</span>
+<span class="nc" id="L23">    private Queue&lt;Puja&gt; pujas = new PriorityQueue&lt;&gt;();</span>
+<span class="nc" id="L24">    private List&lt;MessageDto&gt; messageList;</span>
+<span class="nc" id="L25">    private int idSubasta;</span>
+    
+<span class="nc" id="L27">    private final Monitor monitor;</span>
+
+    @Autowired
+<span class="nc" id="L30">    public SubastaConcurrente(Subasta subasta, SubastaService subastaService, UsuarioService usuarioService, Monitor monitor) {</span>
+<span class="nc" id="L31">        this.subasta = subasta;</span>
+<span class="nc" id="L32">        this.subastaService = subastaService;</span>
+<span class="nc" id="L33">        this.usuarioService = usuarioService;</span>
+<span class="nc" id="L34">        this.idSubasta = subasta.getId();</span>
+<span class="nc" id="L35">        this.monitor = monitor;</span>
+        
+<span class="nc" id="L37">    }</span>
+    
+    public void run() {
+<span class="nc" id="L40">        actualizarDatos();</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        if (!subasta.isEstado()) {</span>
+<span class="nc" id="L42">            subasta.setEstado(true);</span>
+<span class="nc" id="L43">            subastaService.save(subasta);</span>
+        }
+<span class="nc" id="L45">        System.out.println(subasta.isEstado());</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        while (subasta.isEstado()) {</span>
+<span class="nc" id="L47">            monitor.suspenderHilos();</span>
+<span class="nc" id="L48">            System.out.println(&quot;vamos a esperar...&quot;);</span>
+            try {
+<span class="nc" id="L50">                monitor.esperarSiSuspendido();</span>
+<span class="nc" id="L51">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L52">                e.printStackTrace();</span>
+<span class="nc" id="L53">            }</span>
+<span class="nc" id="L54">            System.out.println(&quot;volvimos!!!&quot;);</span>
+<span class="nc" id="L55">            actualizarDatos();</span>
+<span class="nc" id="L56">            verificarPujas();</span>
+<span class="nc" id="L57">            Puja puja = null;</span>
+        
+<span class="nc" id="L59">            synchronized (monitor) {</span>
+<span class="nc" id="L60">                puja = pujas.poll();</span>
+<span class="nc" id="L61">            }</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (puja != null) {</span>
+                
+<span class="nc bnc" id="L64" title="All 2 branches missed.">                if (puja.getOferta().compareTo(precioActual) &gt; 0) {</span>
+<span class="nc" id="L65">                    precioActual = puja.getOferta();</span>
+<span class="nc" id="L66">                    ganador = puja.getPostor();</span>
+<span class="nc" id="L67">                    subasta.setGanador(ganador);</span>
+<span class="nc" id="L68">                    subasta.setPrecioFinal(precioActual);</span>
+<span class="nc" id="L69">                    subastaService.save(subasta);</span>
+                }
+            }
+            
+<span class="nc" id="L73">        }</span>
+<span class="nc" id="L74">    }</span>
+    public void verificarPujas() {
+<span class="nc" id="L76">        synchronized (monitor) {</span>
+<span class="nc" id="L77">            subasta = subastaService.getSubastaById(idSubasta).get();</span>
+<span class="nc" id="L78">            precioActual = subasta.getPrecioFinal();</span>
+<span class="nc" id="L79">            ganador = subasta.getGanador();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            for (MessageDto messageDto : subasta.getMessageList()) {</span>
+<span class="nc" id="L81">                Optional&lt;Usuario&gt; usuarioOptional = usuarioService.getUsuarioByUserName(messageDto.getSenderEmail());</span>
+<span class="nc" id="L82">                usuarioOptional.ifPresent(usuario -&gt; {</span>
+<span class="nc" id="L83">                    BigDecimal oferta = new BigDecimal(messageDto.getReplymessage());</span>
+<span class="nc" id="L84">                    recibirPuja(usuario, oferta);</span>
+<span class="nc" id="L85">                });</span>
+<span class="nc" id="L86">            }</span>
+<span class="nc" id="L87">        }</span>
+<span class="nc" id="L88">    }</span>
+    public synchronized void actualizarDatos(){
+<span class="nc" id="L90">        subasta = subastaService.getSubastaById(subasta.getId()).get();</span>
+<span class="nc" id="L91">        precioActual = subasta.getPrecioFinal();</span>
+<span class="nc" id="L92">        ganador = subasta.getGanador();</span>
+<span class="nc" id="L93">        messageList = subasta.getMessageList();</span>
+<span class="nc" id="L94">    }</span>
+    public void recibirPuja(Usuario postor, BigDecimal oferta) {
+<span class="nc" id="L96">        subasta = subastaService.getSubastaById(idSubasta).get();</span>
+<span class="nc" id="L97">        precioActual = subasta.getPrecioFinal();</span>
+<span class="nc" id="L98">        ganador = subasta.getGanador();</span>
+<span class="nc" id="L99">        messageList = subasta.getMessageList();</span>
+<span class="nc" id="L100">        synchronized(monitor){</span>
+<span class="nc bnc" id="L101" title="All 4 branches missed.">           if (subasta.isEstado() &amp;&amp; oferta.compareTo(precioActual) &gt; 0) {</span>
+<span class="nc" id="L102">                pujas.offer(new Puja(postor, oferta));</span>
+            } 
+<span class="nc" id="L104">        }</span>
+<span class="nc" id="L105">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

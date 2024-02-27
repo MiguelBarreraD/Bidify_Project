@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SubastaController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">websockets-msbroker-example</a> &gt; <a href="index.source.html" class="el_package">edu.eci.arsw.bidify.controller</a> &gt; <span class="el_source">SubastaController.java</span></div><h1>SubastaController.java</h1><pre class="source lang-java linenums">package edu.eci.arsw.bidify.controller;
+import java.math.BigDecimal;
+import java.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.web.bind.annotation.*;
+import edu.eci.arsw.bidify.service.SubastaService;
+import edu.eci.arsw.bidify.service.UsuarioService;
+import edu.eci.arsw.bidify.dto.MessageDto;
+import edu.eci.arsw.bidify.dto.SubastaDto;
+import edu.eci.arsw.bidify.model.Subasta;
+import edu.eci.arsw.bidify.model.Usuario;
+
+@RestController
+@RequestMapping(&quot;/subasta&quot;)
+@CrossOrigin(origins = &quot;*&quot;)
+<span class="fc" id="L19">public class SubastaController{</span>
+    @Autowired
+    private SubastaService subastaService;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;Subasta&gt;&gt; getAllSubastas() {
+<span class="fc" id="L28">        List&lt;Subasta&gt; subastas = subastaService.findAllSubastas();</span>
+<span class="fc" id="L29">        return new ResponseEntity&lt;&gt;(subastas, HttpStatus.OK);</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public synchronized ResponseEntity&lt;Subasta&gt; getSubastaById(@PathVariable int id) {
+        
+<span class="fc" id="L35">        Optional&lt;Subasta&gt; subasta = subastaService.getSubastaById(id);</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (subasta.isPresent()) {</span>
+<span class="fc" id="L37">            return new ResponseEntity&lt;&gt;(subasta.get(), HttpStatus.OK);</span>
+        } else {
+<span class="fc" id="L39">            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+    @GetMapping(&quot;/{subastaId}/messages&quot;)
+    public ResponseEntity&lt;List&lt;MessageDto&gt;&gt; getMessageList(@PathVariable int subastaId) {
+<span class="fc" id="L44">        List&lt;MessageDto&gt; messageList = subastaService.getMessageList(subastaId);</span>
+
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        if (messageList != null) {</span>
+<span class="fc" id="L47">            return new ResponseEntity&lt;&gt;(messageList, HttpStatus.OK);</span>
+        } else {
+<span class="nc" id="L49">            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

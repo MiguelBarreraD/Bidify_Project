@@ -1,0 +1,20 @@
+-------------------------------------------------------------------------------
+Test set: edu.eci.arsw.bidify.SubastaServiceTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 4, Skipped: 0, Time elapsed: 0.04 sec <<< FAILURE! - in edu.eci.arsw.bidify.SubastaServiceTest
+testAddMessage(edu.eci.arsw.bidify.SubastaServiceTest)  Time elapsed: 0.037 sec  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "edu.eci.arsw.bidify.repository.SubastaRepository.findById(int)" because "this.subastaRepository" is null
+	at edu.eci.arsw.bidify.SubastaServiceTest.testAddMessage(SubastaServiceTest.java:63)
+
+testAddSubasta(edu.eci.arsw.bidify.SubastaServiceTest)  Time elapsed: 0.002 sec  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "edu.eci.arsw.bidify.repository.SubastaRepository.save(Object)" because "this.subastaRepository" is null
+	at edu.eci.arsw.bidify.SubastaServiceTest.testAddSubasta(SubastaServiceTest.java:38)
+
+testFinalizarSubasta(edu.eci.arsw.bidify.SubastaServiceTest)  Time elapsed: 0 sec  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "edu.eci.arsw.bidify.repository.SubastaRepository.findById(int)" because "this.subastaRepository" is null
+	at edu.eci.arsw.bidify.SubastaServiceTest.testFinalizarSubasta(SubastaServiceTest.java:51)
+
+testGetMessageList(edu.eci.arsw.bidify.SubastaServiceTest)  Time elapsed: 0.001 sec  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "edu.eci.arsw.bidify.repository.SubastaRepository.findById(int)" because "this.subastaRepository" is null
+	at edu.eci.arsw.bidify.SubastaServiceTest.testGetMessageList(SubastaServiceTest.java:75)
+

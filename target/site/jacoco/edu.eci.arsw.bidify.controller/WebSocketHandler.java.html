@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebSocketHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">websockets-msbroker-example</a> &gt; <a href="index.source.html" class="el_package">edu.eci.arsw.bidify.controller</a> &gt; <span class="el_source">WebSocketHandler.java</span></div><h1>WebSocketHandler.java</h1><pre class="source lang-java linenums">package edu.eci.arsw.bidify.controller;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import edu.eci.arsw.bidify.dto.MessageDto;
+import edu.eci.arsw.bidify.dto.SubastaDto;
+import edu.eci.arsw.bidify.model.Subasta;
+import edu.eci.arsw.bidify.model.Usuario;
+import edu.eci.arsw.bidify.service.SubastaService;
+import edu.eci.arsw.bidify.service.UsuarioService;
+
+@Controller
+<span class="fc" id="L30">public class WebSocketHandler extends StompSessionHandlerAdapter{</span>
+    @Autowired
+    SimpMessagingTemplate msgt;
+    @Autowired
+    private SubastaService subastaService;
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @MessageMapping(&quot;/{subastaId}/messages&quot;)
+    public synchronized ResponseEntity&lt;Subasta&gt; addMessageToSubasta(@DestinationVariable int subastaId, @RequestBody MessageDto messageDto) {
+        
+<span class="nc" id="L41">        Subasta subasta = subastaService.addMessageAndProcessBid(messageDto, subastaId);</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        while(subastaService.getMonitor().isSuspendido() == false){</span>
+        }
+<span class="nc" id="L44">        subasta = subastaService.getSubastaById(subastaId).get();</span>
+<span class="nc" id="L45">        System.out.println(subasta.getPrecioFinal());</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (subasta != null) {</span>
+<span class="nc" id="L47">            msgt.convertAndSend(&quot;/topic/subasta/&quot; + subastaId + &quot;/messages&quot;, subasta);</span>
+<span class="nc" id="L48">            return new ResponseEntity&lt;&gt;(subasta, HttpStatus.OK);</span>
+        } else {
+<span class="nc" id="L50">            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+
+    @MessageMapping(&quot;/subasta/{id}&quot;)
+    public ResponseEntity&lt;Subasta&gt; getMontoGanador(@DestinationVariable int subastaId) {
+        
+<span class="nc" id="L57">        Optional&lt;Subasta&gt; subasta = subastaService.getSubastaById(subastaId);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (subasta.isPresent()) {</span>
+<span class="nc" id="L59">            msgt.convertAndSend(&quot;/topic/subasta/&quot; + subastaId + &quot;/obtener&quot;, subasta);</span>
+<span class="nc" id="L60">            return new ResponseEntity&lt;&gt;(subasta.get(), HttpStatus.OK);</span>
+        } else {
+<span class="nc" id="L62">            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+
+    @MessageMapping(&quot;/{subastaId}/finalizar&quot;)
+    public ResponseEntity&lt;Subasta&gt; finalizarSubasta(@DestinationVariable  int subastaId) {
+
+<span class="nc" id="L69">        Optional&lt;Subasta&gt; subastaOptional = subastaService.getSubastaById(subastaId);</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (subastaOptional.isPresent()) {</span>
+<span class="nc" id="L71">            Subasta subasta = subastaOptional.get();</span>
+<span class="nc" id="L72">            subastaService.finalizarSubasta(subastaId);</span>
+<span class="nc" id="L73">            msgt.convertAndSend(&quot;/topic/subasta/&quot; + subastaId + &quot;/finalizar&quot;, subasta);</span>
+<span class="nc" id="L74">            return new ResponseEntity&lt;&gt;(subasta, HttpStatus.OK);</span>
+        } else {
+<span class="nc" id="L76">            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+    @MessageMapping(&quot;/{subastaId}/iniciar&quot;)
+    public ResponseEntity&lt;Subasta&gt; iniciarSubasta(@DestinationVariable  int subastaId) {
+<span class="nc" id="L81">        Optional&lt;Subasta&gt; subastaOptional = subastaService.getSubastaById(subastaId);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (subastaOptional.isPresent()) {</span>
+<span class="nc" id="L83">            Subasta subasta = subastaOptional.get();</span>
+<span class="nc" id="L84">            subastaService.iniciarSubasta(subastaId);</span>
+<span class="nc" id="L85">            msgt.convertAndSend(&quot;/topic/subasta/&quot; + subastaId + &quot;/iniciar&quot;, subasta);</span>
+<span class="nc" id="L86">            return new ResponseEntity&lt;&gt;(subasta, HttpStatus.OK);</span>
+        } else {
+<span class="nc" id="L88">            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+    @MessageMapping(&quot;/{subastaId}&quot;)
+    public ResponseEntity&lt;Subasta&gt; actualizarSubasta(@PathVariable(&quot;subastaId&quot;) int subastaId, @RequestBody SubastaDto subastaDto) {
+
+<span class="nc" id="L94">        Optional&lt;Subasta&gt; subastaOptional = subastaService.getSubastaById(subastaId);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (subastaOptional.isPresent()) {</span>
+<span class="nc" id="L96">            Subasta subasta = subastaOptional.get();</span>
+<span class="nc" id="L97">            subasta.setId(subastaId);</span>
+<span class="nc" id="L98">            subasta.setEstado(subastaDto.isEstado());</span>
+<span class="nc" id="L99">            subasta.setGanador(subastaDto.getGanador());</span>
+<span class="nc" id="L100">            subasta.setMessageList(subastaDto.getMessageList());</span>
+<span class="nc" id="L101">            subasta.setOferentes(subastaDto.getOferentes());</span>
+<span class="nc" id="L102">            subasta.setPrecioFinal(subastaDto.getPrecioFinal());</span>
+<span class="nc" id="L103">            subastaService.addSubasta(subasta);</span>
+<span class="nc" id="L104">            msgt.convertAndSend(&quot;/topic/subasta/&quot; + subastaId + &quot;/actualizacion&quot;, subasta);</span>
+<span class="nc" id="L105">            return new ResponseEntity&lt;&gt;(subasta, HttpStatus.OK);</span>
+        } else {
+<span class="nc" id="L107">            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+    
+    @MessageMapping(&quot;/subasta/crear&quot;)
+    public ResponseEntity&lt;Subasta&gt; createSubasta(@RequestBody Subasta subasta) {
+<span class="fc" id="L113">        Subasta newSubasta = subastaService.addSubasta(subasta);</span>
+<span class="fc" id="L114">        msgt.convertAndSend(&quot;/topic/subasta/crear&quot;, subasta);</span>
+<span class="fc" id="L115">        return new ResponseEntity&lt;&gt;(newSubasta, HttpStatus.OK);</span>
+    }
+
+    @MessageMapping(&quot;/{subastaId}/{usuario}/unirse&quot;)
+    public ResponseEntity&lt;Subasta&gt; unirseSubasta(@DestinationVariable int subastaId,
+            @DestinationVariable String usuario) {
+<span class="nc" id="L121">        Usuario user = usuarioService.getUsuarioByUserName(usuario).get();</span>
+<span class="nc" id="L122">        Optional&lt;Subasta&gt; subasta = subastaService.getSubastaById(subastaId);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (subasta.isPresent()) {</span>
+<span class="nc" id="L124">            subastaService.añadirParticipante(subastaId, user);</span>
+<span class="nc" id="L125">            msgt.convertAndSend(&quot;/topic/subasta/&quot; + subastaId + &quot;/&quot; + usuario +&quot;/unirse&quot;, subasta);</span>
+<span class="nc" id="L126">            return new ResponseEntity&lt;&gt;(HttpStatus.OK);</span>
+        } else {
+<span class="nc" id="L128">            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

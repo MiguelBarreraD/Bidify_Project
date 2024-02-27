@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>createSubastas.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">websockets-msbroker-example</a> &gt; <a href="index.source.html" class="el_package">edu.eci.arsw.bidify.util</a> &gt; <span class="el_source">createSubastas.java</span></div><h1>createSubastas.java</h1><pre class="source lang-java linenums">package edu.eci.arsw.bidify.util;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+import edu.eci.arsw.bidify.model.Producto;
+import edu.eci.arsw.bidify.model.Subasta;
+import edu.eci.arsw.bidify.model.Usuario;
+import edu.eci.arsw.bidify.service.ProductoService;
+import edu.eci.arsw.bidify.service.SubastaService;
+import edu.eci.arsw.bidify.service.UsuarioService;
+
+
+@Component
+<span class="fc" id="L20">public class createSubastas implements CommandLineRunner{</span>
+    
+    @Autowired
+    ProductoService productoService;
+    @Autowired
+    UsuarioService usuarioService;
+    @Autowired
+    SubastaService subastaService;
+    
+    @Override
+    public void run(String... args) throws Exception {
+        
+        //productos
+<span class="fc" id="L33">        Producto producto1 = new Producto(&quot;Jordan One&quot;, (float) 600000, &quot;https://phantom-expansion.unidadeditorial.es/6239da431613d30a7ade440a4719e3db/crop/0x378/1074x982/resize/828/f/jpg/assets/multimedia/imagenes/2022/03/21/16478732471407.jpg&quot;);</span>
+<span class="fc" id="L34">        Producto producto2 = new Producto(&quot;Camara&quot;, (float) 800000, &quot;https://www.workshopexperience.com/wp-content/uploads/2017/07/marcas-de-camaras-fotograficas-4.jpg&quot;);</span>
+<span class="fc" id="L35">        Producto producto3 = new Producto(&quot;Porsche 911 GT3&quot;, (float) 351500000, &quot;https://files.porsche.com/filestore/image/multimedia/none/992-gt3-modelimage-sideshot/model/765dfc51-51bc-11eb-80d1-005056bbdc38/porsche-model.png&quot;);</span>
+<span class="fc" id="L36">        Producto producto4 = new Producto(&quot;Vinilo Michael Jackson&quot;, (float) 2000000000, &quot;https://http2.mlstatic.com/D_NQ_NP_664991-MCO71457373138_092023-O.webp&quot;);</span>
+<span class="fc" id="L37">        Producto producto5 = new Producto(&quot;Funko pop Michael Jackson&quot;, (float) 600000, &quot;https://http2.mlstatic.com/D_NQ_NP_631613-MCO71749069309_092023-O.webp&quot;);</span>
+<span class="fc" id="L38">        productoService.save(producto1);   </span>
+<span class="fc" id="L39">        productoService.save(producto2);  </span>
+<span class="fc" id="L40">        productoService.save(producto3);  </span>
+<span class="fc" id="L41">        productoService.save(producto4);  </span>
+<span class="fc" id="L42">        productoService.save(producto5);</span>
+        
+<span class="fc" id="L44">        List&lt;Producto&gt; productos = new ArrayList&lt;&gt;(); </span>
+<span class="fc" id="L45">        productos.add(producto5);</span>
+<span class="fc" id="L46">        productos.add(producto4);</span>
+<span class="fc" id="L47">        productos.add(producto3);</span>
+
+        
+<span class="fc" id="L50">        Usuario usuario0 = new Usuario(&quot;Karen&quot;, &quot;KarenLi&quot;, &quot;karen@gmail.com&quot;, &quot;123&quot;);</span>
+<span class="fc" id="L51">        usuarioService.registrarUsuario(usuario0);</span>
+<span class="fc" id="L52">        Producto productoprueba1 = new Producto(&quot;Plancha&quot;, (float) 600000, &quot;https://www.hola.com/imagenes/seleccion/20201210180792/mejor-plancha-de-pelo/0-898-977/ghd-gold-planchas-a.jpg&quot;);</span>
+<span class="fc" id="L53">        productoprueba1.setUsuario(usuario0);</span>
+<span class="fc" id="L54">        productoService.save(productoprueba1);</span>
+<span class="fc" id="L55">        Producto productoprueba2 = new Producto(&quot;Samba Adidas&quot;, (float) 800000, &quot;https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/3bbecbdf584e40398446a8bf0117cf62_9366/Tenis_Samba_OG_Blanco_B75806_01_standard.jpg&quot;);</span>
+<span class="fc" id="L56">        productoprueba2.setUsuario(usuario0);</span>
+<span class="fc" id="L57">        productoService.save(productoprueba2);</span>
+<span class="fc" id="L58">        usuario0.addProducto(productoprueba2);</span>
+<span class="fc" id="L59">        usuario0.addProducto(productoprueba1);</span>
+        
+<span class="fc" id="L61">        Usuario usuario1 = new Usuario(&quot;migue&quot;, &quot;Miguel Angel&quot;, &quot;miguel@gmail.com&quot;, &quot;123&quot;);</span>
+<span class="fc" id="L62">        Usuario usuario2 = new Usuario(&quot;jaider&quot;, &quot;Jaider Gonzalez&quot;, &quot;jaider@gmail.com&quot;, &quot;123&quot;);</span>
+<span class="fc" id="L63">        Usuario usuario3 = new Usuario(&quot;santi&quot;, &quot;Santiago Gonzalez&quot;, &quot;santiago@gmail.com&quot;, &quot;123&quot;);</span>
+<span class="fc" id="L64">        Usuario usuario4 = new Usuario(&quot;camilo&quot;, &quot;camilo Angel&quot;, &quot;camilo@gmail.com&quot;, &quot;123&quot;);</span>
+<span class="fc" id="L65">        Usuario usuario5 = new Usuario(&quot;sebastian&quot;, &quot;sebastian Gonzalez&quot;, &quot;sebastian@gmail.com&quot;, &quot;123&quot;);</span>
+<span class="fc" id="L66">        Usuario usuario6 = new Usuario(&quot;andrea&quot;, &quot;andrea Gonzalez&quot;, &quot;andrea@gmail.com&quot;, &quot;123&quot;);</span>
+        
+<span class="fc" id="L68">        usuarioService.registrarUsuario(usuario1);</span>
+<span class="fc" id="L69">        usuarioService.registrarUsuario(usuario2);</span>
+<span class="fc" id="L70">        usuarioService.registrarUsuario(usuario3);</span>
+<span class="fc" id="L71">        usuarioService.registrarUsuario(usuario4);</span>
+<span class="fc" id="L72">        usuarioService.registrarUsuario(usuario5);</span>
+<span class="fc" id="L73">        usuarioService.registrarUsuario(usuario6);</span>
+
+<span class="fc" id="L75">        Set&lt;Usuario&gt; oferentes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L76">        BigDecimal bigDecimalValue = new BigDecimal(Float.toString(producto5.getPrecio()));</span>
+<span class="fc" id="L77">        Subasta subasta1 = new Subasta(usuario2, producto5, bigDecimalValue,false, 2);</span>
+<span class="fc" id="L78">        oferentes.add(usuario1);</span>
+<span class="fc" id="L79">        oferentes.add(usuario3);</span>
+<span class="fc" id="L80">        subasta1.setOferentes(oferentes);</span>
+        
+<span class="fc" id="L82">        Set&lt;Usuario&gt; oferentes2 = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L83">        BigDecimal bigDecimalValue2 = new BigDecimal(Float.toString(producto3.getPrecio()));</span>
+<span class="fc" id="L84">        Subasta subasta2 = new Subasta(usuario5, producto3, bigDecimalValue2,false, 2);</span>
+<span class="fc" id="L85">        oferentes2.add(usuario4);</span>
+<span class="fc" id="L86">        oferentes2.add(usuario6);</span>
+<span class="fc" id="L87">        subasta2.setOferentes(oferentes2);</span>
+        
+<span class="fc" id="L89">        subastaService.addSubasta(subasta1);</span>
+<span class="fc" id="L90">        subastaService.addSubasta(subasta2);</span>
+       
+        
+        
+<span class="fc" id="L94">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

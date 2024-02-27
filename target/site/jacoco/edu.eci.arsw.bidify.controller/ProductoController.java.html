@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">websockets-msbroker-example</a> &gt; <a href="index.source.html" class="el_package">edu.eci.arsw.bidify.controller</a> &gt; <span class="el_source">ProductoController.java</span></div><h1>ProductoController.java</h1><pre class="source lang-java linenums">package edu.eci.arsw.bidify.controller;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.*;
+
+import edu.eci.arsw.bidify.dto.Mensaje;
+import edu.eci.arsw.bidify.dto.ProductoDto;
+import edu.eci.arsw.bidify.model.Producto;
+import edu.eci.arsw.bidify.model.Usuario;
+import edu.eci.arsw.bidify.repository.UsuarioRepository;
+import edu.eci.arsw.bidify.service.ProductoService;
+import edu.eci.arsw.bidify.service.UsuarioService;
+
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/producto&quot;)
+@CrossOrigin(origins = &quot;*&quot;)
+<span class="fc" id="L22">public class ProductoController {</span>
+
+    @Autowired
+    ProductoService productoService;
+    @Autowired
+    UsuarioService usuarioService;
+
+    @GetMapping(&quot;/lista&quot;)
+    public ResponseEntity&lt;List&lt;Producto&gt;&gt; list(){
+<span class="nc" id="L31">        List&lt;Producto&gt; list = productoService.list();</span>
+<span class="nc" id="L32">        return new ResponseEntity(list, HttpStatus.OK);</span>
+    }
+
+    @GetMapping(&quot;/detail/{id}&quot;)
+    public ResponseEntity&lt;Producto&gt; getById(@PathVariable(&quot;id&quot;) int id){
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if(!productoService.existsById(id))</span>
+<span class="nc" id="L38">            return new ResponseEntity(new Mensaje(&quot;no existe&quot;), HttpStatus.NOT_FOUND);</span>
+<span class="fc" id="L39">        Producto producto = productoService.getOne(id).get();</span>
+<span class="fc" id="L40">        return new ResponseEntity(producto, HttpStatus.OK);</span>
+    }
+
+    @GetMapping(&quot;/detailname/{nombre}&quot;)
+    public ResponseEntity&lt;Producto&gt; getByNombre(@PathVariable(&quot;nombre&quot;) String nombre){
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if(!productoService.existsByNombre(nombre))</span>
+<span class="nc" id="L46">            return new ResponseEntity(new Mensaje(&quot;no existe&quot;), HttpStatus.NOT_FOUND);</span>
+<span class="fc" id="L47">        Producto producto = productoService.getByNombre(nombre).get();</span>
+<span class="fc" id="L48">        return new ResponseEntity(producto, HttpStatus.OK);</span>
+    }
+
+    
+    @PutMapping(&quot;/create/{userName}&quot;)
+    public ResponseEntity&lt;?&gt; create(@PathVariable(&quot;userName&quot;)String userName, @RequestBody ProductoDto productoDto){
+<span class="nc" id="L54">        Usuario usuario = usuarioService.getUsuarioByUserName(userName).get();</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if(StringUtils.isBlank(productoDto.getNombre()))</span>
+<span class="nc" id="L56">            return new ResponseEntity(new Mensaje(&quot;el nombre es obligatorio&quot;), HttpStatus.BAD_REQUEST);</span>
+<span class="nc bnc" id="L57" title="All 4 branches missed.">        if(productoDto.getPrecio()==null || productoDto.getPrecio()&lt;0 )</span>
+<span class="nc" id="L58">            return new ResponseEntity(new Mensaje(&quot;el precio debe ser mayor que 0&quot;), HttpStatus.BAD_REQUEST);</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if(productoService.existsByNombre(productoDto.getNombre()))</span>
+<span class="nc" id="L60">            return new ResponseEntity(new Mensaje(&quot;ese nombre ya existe&quot;), HttpStatus.BAD_REQUEST);</span>
+<span class="nc" id="L61">        Producto producto = new Producto(productoDto.getNombre(), productoDto.getPrecio(), productoDto.getImg());</span>
+<span class="nc" id="L62">        producto.setUsuario(usuario);</span>
+<span class="nc" id="L63">        productoService.save(producto);</span>
+<span class="nc" id="L64">        usuario.addProducto(producto);</span>
+<span class="nc" id="L65">        return new ResponseEntity(new Mensaje(&quot;producto creado&quot;), HttpStatus.OK);</span>
+    }
+
+    
+    @PutMapping(&quot;/update/{id}&quot;)
+    public ResponseEntity&lt;?&gt; update(@PathVariable(&quot;id&quot;)int id, @RequestBody ProductoDto productoDto){
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if(!productoService.existsById(id))</span>
+<span class="fc" id="L72">            return new ResponseEntity(new Mensaje(&quot;no existe&quot;), HttpStatus.NOT_FOUND);</span>
+<span class="pc bpc" id="L73" title="3 of 4 branches missed.">        if(productoService.existsByNombre(productoDto.getNombre()) &amp;&amp; productoService.getByNombre(productoDto.getNombre()).get().getId() != id)</span>
+<span class="nc" id="L74">            return new ResponseEntity(new Mensaje(&quot;ese nombre ya existe&quot;), HttpStatus.BAD_REQUEST);</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if(StringUtils.isBlank(productoDto.getNombre()))</span>
+<span class="nc" id="L76">            return new ResponseEntity(new Mensaje(&quot;el nombre es obligatorio&quot;), HttpStatus.BAD_REQUEST);</span>
+<span class="pc bpc" id="L77" title="2 of 4 branches missed.">        if(productoDto.getPrecio()==null || productoDto.getPrecio()&lt;0 )</span>
+<span class="nc" id="L78">            return new ResponseEntity(new Mensaje(&quot;el precio debe ser mayor que 0&quot;), HttpStatus.BAD_REQUEST);</span>
+
+<span class="fc" id="L80">        Producto producto = productoService.getOne(id).get();</span>
+<span class="fc" id="L81">        producto.setNombre(productoDto.getNombre());</span>
+<span class="fc" id="L82">        producto.setPrecio(productoDto.getPrecio());</span>
+<span class="fc" id="L83">        productoService.save(producto);</span>
+<span class="fc" id="L84">        return new ResponseEntity(new Mensaje(&quot;producto actualizado&quot;), HttpStatus.OK);</span>
+    }
+
+    
+    @DeleteMapping(&quot;/delete/{id}&quot;)
+    public ResponseEntity&lt;?&gt; delete(@PathVariable(&quot;id&quot;)int id){
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if(!productoService.existsById(id))</span>
+<span class="nc" id="L91">            return new ResponseEntity(new Mensaje(&quot;no existe&quot;), HttpStatus.NOT_FOUND);</span>
+<span class="fc" id="L92">        productoService.delete(id);</span>
+<span class="fc" id="L93">        return new ResponseEntity(new Mensaje(&quot;producto eliminado&quot;), HttpStatus.OK);</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

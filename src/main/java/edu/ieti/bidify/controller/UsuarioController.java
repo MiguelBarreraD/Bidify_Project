@@ -1,9 +1,13 @@
 package edu.ieti.bidify.controller;
 
 import edu.ieti.bidify.dto.Mensaje;
+import edu.ieti.bidify.dto.UsuarioDto;
+import edu.ieti.bidify.exceptions.AttributeException;
 import edu.ieti.bidify.model.Usuario;
 import edu.ieti.bidify.service.UsuarioService;
 import io.micrometer.common.util.StringUtils;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +48,16 @@ public class UsuarioController {
             return new ResponseEntity<>(new Mensaje("El nombre de usuario y la contraseña son obligatorios"), HttpStatus.BAD_REQUEST);
 
         usuarioService.registrarUsuario(usuario);
+        return new ResponseEntity<>(new Mensaje("Usuario registrado"), HttpStatus.OK);
+    }
+
+    /*
+     * Metodo para crear usuario
+     */
+
+    @PostMapping("/crearUsuario")
+    public ResponseEntity<?> crear(@Valid @RequestBody UsuarioDto usuarioDto) throws AttributeException{
+        usuarioService.crearUsuario(usuarioDto);
         return new ResponseEntity<>(new Mensaje("Usuario registrado"), HttpStatus.OK);
     }
 

@@ -2,6 +2,9 @@ package edu.ieti.bidify.model;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import edu.ieti.bidify.security.enums.RolEnum;
+
 import java.util.*;
 /**
  * Clase que representa un usuario en el sistema de subastas.
@@ -16,6 +19,7 @@ public class Usuario {
     private String email;
     private String password;
     private List<String> productos; // Solo almacenamos IDs de productos
+    private List<RolEnum> roles;
 
     /**
      * Constructor de la clase Usuario.
@@ -25,11 +29,13 @@ public class Usuario {
      * @param email Correo electrónico del usuario.
      * @param password Contraseña del usuario.
      */
-    public Usuario(String userName, String nombre, String email, String password) {
+    public Usuario(int id, String userName, String nombre, String email, String password, List<RolEnum> roles) {
+        this.id = id;
         this.userName = userName;
         this.nombre = nombre;
         this.email = email;
         this.password = password;
+        this.roles = roles;
         productos = new ArrayList<>();
     }
 
@@ -50,4 +56,5 @@ public class Usuario {
     public void removeProducto(String productoId) {
         productos.remove(productoId);
     }
+
 }

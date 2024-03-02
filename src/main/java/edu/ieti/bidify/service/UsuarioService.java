@@ -1,13 +1,17 @@
 package edu.ieti.bidify.service;
 
 
+import edu.ieti.bidify.dto.UsuarioDto;
+import edu.ieti.bidify.exceptions.AttributeException;
 import edu.ieti.bidify.model.Usuario;
 import edu.ieti.bidify.repository.UsuarioRepository;
+import edu.ieti.bidify.security.enums.RolEnum;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Servicio que gestiona las operaciones relacionadas con los usuarios en el sistema de subastas.
@@ -68,6 +72,26 @@ public class UsuarioService {
         int id = autoIncrement();
         usuario.setId(id);
         usuarioRepository.save(usuario);
+    }
+
+    /**
+     * Registra un nuevo usuario en el sistema a partir de UsuarioDto.
+     * @param usuarioDto Usuario a registrar.
+     * @throws AttributeException Si el nombre de usuario ya existe.
+     * @return Usuario registrado.
+     */
+
+    public Usuario crearUsuario(UsuarioDto usuarioDto) throws AttributeException{
+        if(usuarioRepository.existsByUserName(usuarioDto.getUserName())) {
+            throw new AttributeException("El nombre de usuario ya existe");
+        }
+        if(usuarioRepository.existsByEmail(usuarioDto.getEmail())) {
+            throw new AttributeException("El correo ya está registrado");
+        }
+        int id = autoIncrement();
+        List<RolEnum> roles = usuarioDto.getRoles().stream().map(rol -> RolEnum.valueOf(rol)).collect(Collectors.toList());
+        Usuario usuario = new Usuario(id, usuarioDto.getUserName(), usuarioDto.getNombre(), usuarioDto.getEmail(), usuarioDto.getPassword(), roles);
+        return usuarioRepository.save(usuario);
     }
 
     /**

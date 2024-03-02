@@ -9,5 +9,6 @@ public interface UsuarioRepository extends MongoRepository<Usuario, Integer> {
     Usuario findByUserNameAndPassword(String userName, String password);
     boolean existsByUserName(String nombre);
     boolean existsById(int id);
+    boolean existsByEmail(String email);
     void deleteByUserName(String userName);
 }

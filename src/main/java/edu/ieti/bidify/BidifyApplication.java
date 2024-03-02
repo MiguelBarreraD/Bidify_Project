@@ -1,6 +1,5 @@
 package edu.ieti.bidify;
 
-import edu.ieti.bidify.model.Producto;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

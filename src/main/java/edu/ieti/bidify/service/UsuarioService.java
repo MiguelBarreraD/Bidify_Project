@@ -8,6 +8,7 @@ import edu.ieti.bidify.repository.UsuarioRepository;
 import edu.ieti.bidify.security.enums.RolEnum;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
@@ -21,6 +22,9 @@ import java.util.stream.Collectors;
 public class UsuarioService {
     @Autowired
     UsuarioRepository usuarioRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     /**
      * Elimina un usuario por su nombre de usuario.
@@ -88,10 +92,13 @@ public class UsuarioService {
         if(usuarioRepository.existsByEmail(usuarioDto.getEmail())) {
             throw new AttributeException("El correo ya está registrado");
         }
+        return usuarioRepository.save(mapUserFromDto(usuarioDto));
+    }
+
+    private Usuario mapUserFromDto(UsuarioDto usuarioDto) {
         int id = autoIncrement();
         List<RolEnum> roles = usuarioDto.getRoles().stream().map(rol -> RolEnum.valueOf(rol)).collect(Collectors.toList());
-        Usuario usuario = new Usuario(id, usuarioDto.getUserName(), usuarioDto.getNombre(), usuarioDto.getEmail(), usuarioDto.getPassword(), roles);
-        return usuarioRepository.save(usuario);
+        return new Usuario(id, usuarioDto.getUserName(), usuarioDto.getNombre(), usuarioDto.getEmail(), passwordEncoder.encode(usuarioDto.getPassword()), roles);
     }
 
     /**

@@ -4,12 +4,15 @@ import edu.ieti.bidify.dto.Mensaje;
 import edu.ieti.bidify.dto.UsuarioDto;
 import edu.ieti.bidify.exceptions.AttributeException;
 import edu.ieti.bidify.model.Usuario;
+import edu.ieti.bidify.security.dto.AuthenticationResponseDto;
 import edu.ieti.bidify.security.dto.JWTTokenDto;
 import edu.ieti.bidify.security.dto.LoginUsuarioDto;
+import edu.ieti.bidify.security.jwt.JWTGenerator;
 import edu.ieti.bidify.service.UsuarioService;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.Valid;
 
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,11 +38,14 @@ public class UsuarioController {
     private AuthenticationManager authenticationManager;
     private PasswordEncoder passwordEncoder;
 
+    private JWTGenerator jwtGenerator;
+
     @Autowired
-    public UsuarioController(UsuarioService usuarioService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
+    public UsuarioController(UsuarioService usuarioService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JWTGenerator jwtGenerator) {
         this.usuarioService = usuarioService;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
+        this.jwtGenerator = jwtGenerator;
     }
 
     /**
@@ -119,10 +125,11 @@ public class UsuarioController {
      * @return Respuesta HTTP con un mensaje de éxito o error.
      */
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginUsuarioDto loginUsuarioDto) {
+    public ResponseEntity<AuthenticationResponseDto> login(@RequestBody LoginUsuarioDto loginUsuarioDto) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(loginUsuarioDto.getUserName(), loginUsuarioDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>("El usuario ha iniciado sesión", HttpStatus.OK);
+        String token = jwtGenerator.generateToken(authentication);
+        return new ResponseEntity<>(new AuthenticationResponseDto(token), HttpStatus.OK);
     }
 }

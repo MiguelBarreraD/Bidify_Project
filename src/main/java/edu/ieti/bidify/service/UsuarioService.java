@@ -8,7 +8,7 @@ import edu.ieti.bidify.repository.UsuarioRepository;
 import edu.ieti.bidify.security.dto.JWTTokenDto;
 import edu.ieti.bidify.security.dto.LoginUsuarioDto;
 import edu.ieti.bidify.security.enums.RolEnum;
-import edu.ieti.bidify.security.jwt.JWTProvider;
+import edu.ieti.bidify.security.jwt.JWTGenerator;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -34,7 +34,7 @@ public class UsuarioService {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    JWTProvider jwtProvider;
+    JWTGenerator jwtProvider;
 
 
     /**

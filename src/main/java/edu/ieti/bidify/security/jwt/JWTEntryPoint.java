@@ -22,6 +22,6 @@ public class JWTEntryPoint implements AuthenticationEntryPoint{
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         logger.error("Token not found or invalid");
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unhautorized");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
     }
 }

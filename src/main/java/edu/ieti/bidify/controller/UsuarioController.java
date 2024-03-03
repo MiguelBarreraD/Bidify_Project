@@ -4,6 +4,8 @@ import edu.ieti.bidify.dto.Mensaje;
 import edu.ieti.bidify.dto.UsuarioDto;
 import edu.ieti.bidify.exceptions.AttributeException;
 import edu.ieti.bidify.model.Usuario;
+import edu.ieti.bidify.security.dto.JWTTokenDto;
+import edu.ieti.bidify.security.dto.LoginUsuarioDto;
 import edu.ieti.bidify.service.UsuarioService;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.Valid;
@@ -11,6 +13,12 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -22,8 +30,17 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class UsuarioController {
 
+
+    private UsuarioService usuarioService;
+    private AuthenticationManager authenticationManager;
+    private PasswordEncoder passwordEncoder;
+
     @Autowired
-    UsuarioService usuarioService;
+    public UsuarioController(UsuarioService usuarioService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
+        this.usuarioService = usuarioService;
+        this.authenticationManager = authenticationManager;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     /**
      * Obtiene la lista de todos los usuarios registrados en el sistema.
@@ -57,8 +74,12 @@ public class UsuarioController {
 
     @PostMapping("/crearUsuario")
     public ResponseEntity<?> crear(@Valid @RequestBody UsuarioDto usuarioDto) throws AttributeException{
-        usuarioService.crearUsuario(usuarioDto);
-        return new ResponseEntity<>(new Mensaje("Usuario registrado"), HttpStatus.OK);
+        if(usuarioService.existsByUserName(usuarioDto.getUserName())){
+            return new ResponseEntity<>(new Mensaje("El nombre de usuario ya existe"), HttpStatus.BAD_REQUEST);
+        }else{
+            usuarioService.crearUsuario(usuarioDto);
+            return new ResponseEntity<>(new Mensaje("Usuario registrado"), HttpStatus.OK);
+        }
     }
 
     /**
@@ -98,12 +119,10 @@ public class UsuarioController {
      * @return Respuesta HTTP con un mensaje de éxito o error.
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Usuario usuario) {
-        boolean isAuthenticated = usuarioService.login(usuario.getUserName(), usuario.getPassword());
-        if(isAuthenticated){
-            return new ResponseEntity<>(new Mensaje("Login exitoso"), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new Mensaje("Credenciales inválidas"), HttpStatus.UNAUTHORIZED);
-        }
+    public ResponseEntity<String> login(@RequestBody LoginUsuarioDto loginUsuarioDto) {
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(loginUsuarioDto.getUserName(), loginUsuarioDto.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return new ResponseEntity<>("El usuario ha iniciado sesión", HttpStatus.OK);
     }
 }

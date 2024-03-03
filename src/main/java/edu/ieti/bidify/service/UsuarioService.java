@@ -5,9 +5,16 @@ import edu.ieti.bidify.dto.UsuarioDto;
 import edu.ieti.bidify.exceptions.AttributeException;
 import edu.ieti.bidify.model.Usuario;
 import edu.ieti.bidify.repository.UsuarioRepository;
+import edu.ieti.bidify.security.dto.JWTTokenDto;
+import edu.ieti.bidify.security.dto.LoginUsuarioDto;
 import edu.ieti.bidify.security.enums.RolEnum;
+import edu.ieti.bidify.security.jwt.JWTProvider;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Comparator;
@@ -25,6 +32,10 @@ public class UsuarioService {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    JWTProvider jwtProvider;
+
 
     /**
      * Elimina un usuario por su nombre de usuario.

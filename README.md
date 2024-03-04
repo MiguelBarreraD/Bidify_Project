@@ -34,3 +34,5 @@ la Universidad tiene un convenio con GitHub tambien pudimos hacer uso de
 [GitHub Copilot](https://github.com/features/copilot). Estas dos IA son muy 
 utiles a la hora de explicar la solucion a diferentes problemas en el codigo y
 a la sugerencia de lineas de codigo basadas en otros repositorios abiertos.
+
+Link del Video: https://youtu.be/qjm67KJfJLg

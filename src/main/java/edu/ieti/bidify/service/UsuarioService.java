@@ -1,13 +1,25 @@
 package edu.ieti.bidify.service;
 
 
+import edu.ieti.bidify.dto.UsuarioDto;
+import edu.ieti.bidify.exceptions.AttributeException;
 import edu.ieti.bidify.model.Usuario;
 import edu.ieti.bidify.repository.UsuarioRepository;
+import edu.ieti.bidify.security.dto.JWTTokenDto;
+import edu.ieti.bidify.security.dto.LoginUsuarioDto;
+import edu.ieti.bidify.security.enums.RolEnum;
+import edu.ieti.bidify.security.jwt.JWTGenerator;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Servicio que gestiona las operaciones relacionadas con los usuarios en el sistema de subastas.
@@ -17,6 +29,13 @@ import java.util.List;
 public class UsuarioService {
     @Autowired
     UsuarioRepository usuarioRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Autowired
+    JWTGenerator jwtProvider;
+
 
     /**
      * Elimina un usuario por su nombre de usuario.
@@ -68,6 +87,29 @@ public class UsuarioService {
         int id = autoIncrement();
         usuario.setId(id);
         usuarioRepository.save(usuario);
+    }
+
+    /**
+     * Registra un nuevo usuario en el sistema a partir de UsuarioDto.
+     * @param usuarioDto Usuario a registrar.
+     * @throws AttributeException Si el nombre de usuario ya existe.
+     * @return Usuario registrado.
+     */
+
+    public Usuario crearUsuario(UsuarioDto usuarioDto) throws AttributeException{
+        if(usuarioRepository.existsByUserName(usuarioDto.getUserName())) {
+            throw new AttributeException("El nombre de usuario ya existe");
+        }
+        if(usuarioRepository.existsByEmail(usuarioDto.getEmail())) {
+            throw new AttributeException("El correo ya está registrado");
+        }
+        return usuarioRepository.save(mapUserFromDto(usuarioDto));
+    }
+
+    private Usuario mapUserFromDto(UsuarioDto usuarioDto) {
+        int id = autoIncrement();
+        List<RolEnum> roles = usuarioDto.getRoles().stream().map(rol -> RolEnum.valueOf(rol)).collect(Collectors.toList());
+        return new Usuario(id, usuarioDto.getUserName(), usuarioDto.getNombre(), usuarioDto.getEmail(), passwordEncoder.encode(usuarioDto.getPassword()), roles);
     }
 
     /**

@@ -64,7 +64,7 @@ public class ProductoService {
      *
      * @return Nuevo ID.
      */
-    private int autoIncrement(){
+    public int autoIncrement(){
         List<Producto> productos = productoRepository.findAll();
         return productos.isEmpty()? 1 : productos.stream().max(Comparator.comparing(Producto::getId)).get().getId() + 1;
     }

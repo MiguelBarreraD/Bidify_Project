@@ -43,9 +43,10 @@ public class WebSecurityConfig{
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-            .requestMatchers(HttpMethod.GET).permitAll()
             .requestMatchers("/usuario/crearUsuario").permitAll()
             .requestMatchers("/usuario/login").permitAll()
+            .requestMatchers(HttpMethod.GET).authenticated()
+            .requestMatchers(HttpMethod.POST).authenticated()
             .anyRequest().authenticated()
             .and()
             .httpBasic();

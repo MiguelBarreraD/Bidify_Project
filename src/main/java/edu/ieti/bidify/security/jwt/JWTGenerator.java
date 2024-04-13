@@ -42,12 +42,12 @@ public class JWTGenerator {
     }
 
     public String getUserNameFromToken(String token) {
-        return Jwts.parser().setSigningKey(SecurityConstants.JWT_SECRET).parseClaimsJwt(token).getBody().getSubject();
+        return Jwts.parser().setSigningKey(SecurityConstants.JWT_SECRET).parseClaimsJws(token).getBody().getSubject();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(SecurityConstants.JWT_SECRET).parseClaimsJwt(token).getBody();
+            Jwts.parser().setSigningKey(SecurityConstants.JWT_SECRET).parseClaimsJws(token).getBody();
             return true;
         } catch (Exception e){
             throw new AuthenticationCredentialsNotFoundException("Token no válido o expirado");
